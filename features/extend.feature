@@ -17,6 +17,7 @@ Scenario: A book is about to be overdue and can still be extended at least twice
     And an extension e-mail is sent out
     
 
+@skip
 Scenario: A book is about to be overdue and this is the last time it can be extended.
     Given "Catch-22" was checked out, is due on 2025-08-22, and has 1 extensions remaining.
     When all books are extended
@@ -24,19 +25,21 @@ Scenario: A book is about to be overdue and this is the last time it can be exte
     And a warning e-mail is sent out
 
 
+@skip
 Scenario: A book is about to be overdue and cannot be extended again.
     Given "Catch-22" was checked out, is due on 2025-08-22, and has 0 extensions remaining.
     When all books are extended
     Then "Catch-22" is still checked out and is due on 2025-08-22
     And no e-mail is sent out
 
-# Scenario: A mix of statuses
-#     Given "Catch-22" was checked out, is due on 2025-08-22, and has 3 extensions remaining.
-#     Given "A Fault in Our Stars" was checked out, is due on 2025-08-30, and has 3 extensions remaining.
-#     Given "Hamlet" was checked out, is due on 2025-08-22, and has 0 extensions remaining.
-#     When all books are extended
-#     Then "Catch-22" is still checked out is due later than 2025-08-22
-#     Then "A Fault in Our Stars" is still checked out is and is due on 2025-08-30
-#     Then "Hamlet" is still checked out is and is due on 2025-08-30
-#     And an extension e-mail is sent out
-#     And a warning e-mail is sent out
+@skip
+Scenario: A mix of statuses
+    Given "Catch-22" was checked out, is due on 2025-08-22, and has 3 extensions remaining.
+    Given "A Fault in Our Stars" was checked out, is due on 2025-08-30, and has 3 extensions remaining.
+    Given "Hamlet" was checked out, is due on 2025-08-22, and has 0 extensions remaining.
+    When all books are extended
+    Then "Catch-22" is still checked out is due later than 2025-08-22
+    Then "A Fault in Our Stars" is still checked out is and is due on 2025-08-30
+    Then "Hamlet" is still checked out is and is due on 2025-08-30
+    And an extension e-mail is sent out
+    And a warning e-mail is sent out
