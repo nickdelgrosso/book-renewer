@@ -1,7 +1,7 @@
 from pytest_bdd import scenarios, given, when, then, parsers
 from datetime import date, datetime
 
-from src.app.app import BooksRepo
+from src.app.app import BooksRepo, Clock
 
 scenarios('../../features/extend.feature')
 
@@ -12,9 +12,11 @@ def extension_threshold():
     pass
 
 
-@given("the date today is 2025-08-20")
-def today_date():
-    pass
+@given(parsers.parse("the date today is {date_str}"))
+def today_date(clock: Clock, date_str: str):        
+    date = datetime.strptime(date_str, "%Y-%m-%d")
+    clock.set_current(date)
+    assert clock.get_current() == date
 
 
 @given("the warning e-mail frequency is set to 2 days")

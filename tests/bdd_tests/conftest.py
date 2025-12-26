@@ -1,7 +1,7 @@
 from datetime import datetime
 from pytest import fixture
 
-from src.app.app import BooksRepo
+from src.app.app import BooksRepo, Clock
 
 
 class InMemoryBooksRepo(BooksRepo):
@@ -10,6 +10,20 @@ class InMemoryBooksRepo(BooksRepo):
         ...
     
 
+class TestClock(Clock):
+        
+        def set_current(self, current: datetime):
+            self._current = current
+
+        def get_current(self) -> datetime:
+            return self._current
+
+
 @fixture(scope="function")
 def books_repo() -> BooksRepo:
     return InMemoryBooksRepo()
+
+
+@fixture(scope="function")
+def clock() -> Clock:
+     return TestClock()
