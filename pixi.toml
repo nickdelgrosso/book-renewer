@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Nicholas A. Del Grosso <delgrosso.nick@gmail.com>"]
+channels = ["conda-forge"]
+name = "book-renewer"
+platforms = ["win-64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+test = "python -m pytest"
+
+[dependencies]
+python = "3.13.*"
+
+[pypi-dependencies]
+pytest = ">=9.0.2, <10"
+pytest-bdd = ">=8.1.0, <9"
