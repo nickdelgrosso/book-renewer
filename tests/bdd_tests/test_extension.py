@@ -48,6 +48,7 @@ def book_due_later(app: App, title: str, due_date_str: str):
     for book in books:
         if book.title == title:
             assert book.due_on > due_date
+            break
     else:
         raise ValueError(f"Book not found: '{title}'")
 

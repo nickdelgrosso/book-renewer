@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytest import fixture
 
 from src.app.app import BooksRepo, CheckedOutBook, Clock, App, CheckedOutBook
@@ -15,12 +15,19 @@ class InMemoryBooksRepo(BooksRepo):
              due_on=due_on,
              extensions_remaining=extensions,
         )
-        self.__books[title] = book
+        self.__books[book.id] = book
 
     def get_all_checked_out_books(self) -> list[CheckedOutBook]:
         return list(self.__books.values())
          
-    
+    def request_extension(self, book_id: str) -> tuple[bool, CheckedOutBook]:
+         book = self.__books[book_id]
+         new_due_date = book.due_on + timedelta(days=14)
+         updated_book = book.update(due_on=new_due_date)
+         assert updated_book.id == book.id
+         self.__books[updated_book.id] = updated_book
+         return True, updated_book
+         
 
 class TestClock(Clock):
         
