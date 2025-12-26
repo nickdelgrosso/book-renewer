@@ -1,6 +1,6 @@
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import Field, dataclass, field
 from datetime import datetime
 
 
@@ -20,9 +20,22 @@ class Clock(ABC):
     def get_current(self) -> datetime: ...
 
 
+
+@dataclass
+class AppSettings:
+    extension_days_threshold: int = 2
+    
+    
+    
+
 @dataclass
 class App:
-    books_repo: BooksRepo
-    clock: Clock
+    _books_repo: BooksRepo
+    _clock: Clock
+    _settings: AppSettings = field(default_factory=AppSettings)
+
+    def set_extension_days_threshold(self, value: int): 
+        self._settings.extension_days_threshold = value
+
 
     
