@@ -1,13 +1,25 @@
 from datetime import datetime
 from pytest import fixture
 
-from src.app.app import BooksRepo, Clock, App
+from src.app.app import BooksRepo, CheckedOutBook, Clock, App, CheckedOutBook
 
 
 class InMemoryBooksRepo(BooksRepo):
+
+    def __init__(self) -> None:
+        self.__books: dict[str, CheckedOutBook] = {}
     
-    def add_book(self, title: str, due_on: datetime, extensions: int):
-        ...
+    def check_out_book(self, title: str, due_on: datetime, extensions: int):
+        book = CheckedOutBook(
+             title=title,
+             due_on=due_on,
+             extensions_remaining=extensions,
+        )
+        self.__books[title] = book
+
+    def get_all_checked_out_books(self) -> list[CheckedOutBook]:
+        return list(self.__books.values())
+         
     
 
 class TestClock(Clock):

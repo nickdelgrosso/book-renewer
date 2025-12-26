@@ -4,12 +4,20 @@ from dataclasses import Field, dataclass, field
 from datetime import datetime
 from typing import Any, NamedTuple
 
+@dataclass
+class CheckedOutBook:
+    title: str
+    due_on: datetime
+    extensions_remaining: int
 
 
 class BooksRepo(ABC):
     
     @abstractmethod
-    def add_book(self, title: str, due_on: datetime, extensions: int): ...
+    def check_out_book(self, title: str, due_on: datetime, extensions: int): ...
+
+    @abstractmethod
+    def get_all_checked_out_books(self) -> list[CheckedOutBook]: ...
         
 
 class Clock(ABC):

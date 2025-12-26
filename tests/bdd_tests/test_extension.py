@@ -33,8 +33,7 @@ def last_email_date(date_str: str):
 @given(parsers.parse('"{book_title}" was checked out, is due on {due_date_str}, and has {extensions:d} extensions remaining.'))
 def book_checked_out(app: App, book_title: str, due_date_str: str, extensions: int):
     due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
-    app._books_repo.add_book(title=book_title, due_on=due_date, extensions=extensions)
-
+    app._books_repo.check_out_book(title=book_title, due_on=due_date, extensions=extensions)
 
 
 @when("all books are extended")
@@ -42,9 +41,15 @@ def extend_books(app: App):
     app.extend_books()
 
 
-@then(parsers.parse('"{book}" is still checked out and is due later than {original_due_date}'))
-def book_due_later(book, original_due_date):
-    pass
+@then(parsers.parse('"{title}" is still checked out and is due later than {due_date_str}'))
+def book_due_later(app: App, title: str, due_date_str: str):
+    due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
+    books = app._books_repo.get_all_checked_out_books()
+    for book in books:
+        if book.title == title:
+            assert book.due_on > due_date
+    else:
+        raise ValueError(f"Book not found: '{title}'")
 
 
 @then("an extension e-mail is sent out")
