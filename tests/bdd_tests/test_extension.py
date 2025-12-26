@@ -38,8 +38,8 @@ def book_checked_out(app: App, book_title: str, due_date_str: str, extensions: i
 
 
 @when("all books are extended")
-def extend_books():
-    pass
+def extend_books(app: App):
+    app.extend_books()
 
 
 @then(parsers.parse('"{book}" is still checked out and is due later than {original_due_date}'))
