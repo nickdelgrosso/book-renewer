@@ -38,20 +38,37 @@ class Clock(ABC):
     def get_current(self) -> datetime: ...
 
 
+@dataclass
+class BookExtension:
+    book_title: str
+    old_due_date: datetime
+    new_due_date: datetime
+    extensions_remaining: int
+
+
+class NotificationService(ABC):
+
+    @abstractmethod
+    def send_extension_email(self, extensions: list[BookExtension]): ...
+
 
 @dataclass
 class AppSettings:
     extension_days_threshold: int = 2
     
 
+
+
 @dataclass
 class ExtendBooksUseCase:
     books_repo: BooksRepo
+    notifications_service: NotificationService
     clock: Clock
 
     def __call__(self, extension_days_thresh: int):
         current_date = self.clock.get_current()
         books = self.books_repo.get_all_checked_out_books()
+        completed_book_extensions: list[BookExtension] = []
         for book in books:
             days_remaining = (book.due_on - current_date).days
             if days_remaining <= extension_days_thresh:
@@ -60,6 +77,16 @@ class ExtendBooksUseCase:
                     raise ValueError("Unsuccessful request")
                 elif book_updated.due_on <= book.due_on:
                     raise ValueError("Extension didn't work")
+                else:
+                    extension = BookExtension(
+                        book_title=book.title,
+                        old_due_date=book.due_on,
+                        new_due_date=book_updated.due_on,
+                        extensions_remaining=book_updated.extensions_remaining
+                    )
+                    completed_book_extensions.append(extension)
+        if completed_book_extensions:
+            self.notifications_service.send_extension_email(completed_book_extensions)
 
     
 
@@ -67,6 +94,7 @@ class ExtendBooksUseCase:
 class App:
     _books_repo: BooksRepo
     _clock: Clock
+    _notification_service: NotificationService
     _settings: AppSettings = field(default_factory=AppSettings)
 
 
@@ -77,6 +105,7 @@ class App:
         uc = ExtendBooksUseCase(
             books_repo=self._books_repo,
             clock=self._clock,
+            notifications_service=self._notification_service,
         )
         uc(extension_days_thresh=self._settings.extension_days_threshold)
         

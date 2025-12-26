@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 from pytest import fixture
 
-from src.app.app import BooksRepo, CheckedOutBook, Clock, App, CheckedOutBook
+from src.app.app import BooksRepo, CheckedOutBook, Clock, App, CheckedOutBook, NotificationService
 
 
 class InMemoryBooksRepo(BooksRepo):
@@ -44,7 +45,8 @@ class TestClock(Clock):
 def app() -> App:
      return App(
           _books_repo=InMemoryBooksRepo(),
-          _clock=TestClock()
+          _clock=TestClock(),
+          _notification_service = Mock(spec=NotificationService)
      )
      
      
