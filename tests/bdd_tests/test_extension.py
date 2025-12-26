@@ -1,9 +1,12 @@
 from pytest_bdd import scenarios, given, when, then, parsers
+from datetime import date, datetime
 
+from src.app.app import BooksRepo
 
 scenarios('../../features/extend.feature')
 
 
+# Background ################
 @given("the extension threshold is set to 3 days")
 def extension_threshold():
     pass
@@ -23,10 +26,13 @@ def warning_frequency():
 def last_email_date():
     pass
 
+###################################
 
-@given(parsers.parse('"{book}" was checked out, is due on {due_date}, and has {extensions:d} extensions remaining.'))
-def book_checked_out(book, due_date, extensions):
-    pass
+@given(parsers.parse('"{book_title}" was checked out, is due on {due_date_str}, and has {extensions:d} extensions remaining.'))
+def book_checked_out(books_repo: BooksRepo, book_title: str, due_date_str: str, extensions: int):
+    due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
+    books_repo.add_book(title=book_title, due_on=due_date, extensions=extensions)
+
 
 
 @when("all books are extended")
