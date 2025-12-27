@@ -17,6 +17,13 @@ Scenario: A book is about to be overdue and can still be extended at least twice
     And an extension e-mail is sent out
     
 
+Scenario: A book is overdue and can still be extended
+    Given "Catch-22" was checked out, is due on 2025-08-18, and has 3 extensions remaining.
+    When all books are extended
+    Then "Catch-22" is still checked out and is due later than date 2025-08-22
+    And an extension e-mail is sent out
+
+
 Scenario: A book is about to be overdue and this is the last time it can be extended.
     Given "Catch-22" was checked out, is due on 2025-08-22, and has 1 extensions remaining.
     When all books are extended
