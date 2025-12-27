@@ -51,10 +51,14 @@ class NotificationService(ABC):
     @abstractmethod
     def send_extension_email(self, extensions: list[BookExtension]): ...
 
+    @abstractmethod
+    def send_warning_email(self, extensions: list[CheckedOutBook]): ...
+
 
 @dataclass
 class AppSettings:
     extension_days_threshold: int = 2
+    extensions_remaining_threshold: int = 1
     
 
 
@@ -65,12 +69,17 @@ class ExtendBooksUseCase:
     notifications_service: NotificationService
     clock: Clock
 
-    def __call__(self, extension_days_thresh: int):
+    def __call__(self, extension_days_thresh: int, extensions_remaining_thresh: int):
         current_date = self.clock.get_current()
         books = self.books_repo.get_all_checked_out_books()
         completed_book_extensions: list[BookExtension] = []
+        almost_unextendable_books: list[CheckedOutBook] = []
         for book in books:
             days_remaining = (book.due_on - current_date).days
+            if book.extensions_remaining <= extensions_remaining_thresh:
+                almost_unextendable_books.append(book)
+                
+
             if days_remaining <= extension_days_thresh:
                 ok, book_updated = self.books_repo.request_extension(book.id)
                 if not ok:
@@ -87,7 +96,8 @@ class ExtendBooksUseCase:
                     completed_book_extensions.append(extension)
         if completed_book_extensions:
             self.notifications_service.send_extension_email(completed_book_extensions)
-
+        if almost_unextendable_books:
+            self.notifications_service.send_warning_email(almost_unextendable_books)
     
 
 @dataclass
@@ -107,6 +117,9 @@ class App:
             clock=self._clock,
             notifications_service=self._notification_service,
         )
-        uc(extension_days_thresh=self._settings.extension_days_threshold)
+        uc(
+            extension_days_thresh=self._settings.extension_days_threshold,
+            extensions_remaining_thresh=self._settings.extensions_remaining_threshold,
+        )
         
     

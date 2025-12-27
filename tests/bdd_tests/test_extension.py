@@ -56,3 +56,8 @@ def book_due_later(app: App, title: str, due_date_str: str):
 @then("an extension e-mail is sent out")
 def extension_email_sent(app: App):
     app._notification_service.send_extension_email.assert_called_once()
+
+
+@then("a warning e-mail is sent out")
+def extension_email_sent(app: App):
+    app._notification_service.send_warning_email.assert_called_once()
