@@ -74,6 +74,7 @@ class ExtendBooksUseCase:
         books = self.books_repo.get_all_checked_out_books()
         completed_book_extensions: list[BookExtension] = []
         almost_unextendable_books: list[CheckedOutBook] = []
+        unextendable_books: list[CheckedOutBook] = []
         for book in books:
             days_remaining = (book.due_on - current_date).days
             if book.extensions_remaining <= extensions_remaining_thresh:
@@ -83,9 +84,7 @@ class ExtendBooksUseCase:
             if days_remaining <= extension_days_thresh:
                 ok, book_updated = self.books_repo.request_extension(book.id)
                 if not ok:
-                    raise ValueError("Unsuccessful request")
-                elif book_updated.due_on <= book.due_on:
-                    raise ValueError("Extension didn't work")
+                    unextendable_books.append(book)
                 else:
                     extension = BookExtension(
                         book_title=book.title,
@@ -96,8 +95,10 @@ class ExtendBooksUseCase:
                     completed_book_extensions.append(extension)
         if completed_book_extensions:
             self.notifications_service.send_extension_email(completed_book_extensions)
-        if almost_unextendable_books:
-            self.notifications_service.send_warning_email(almost_unextendable_books)
+        if almost_unextendable_books or unextendable_books:
+            self.notifications_service.send_warning_email(
+                almost_unextendable_books + unextendable_books
+            )
     
 
 @dataclass

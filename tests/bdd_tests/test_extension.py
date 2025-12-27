@@ -1,3 +1,4 @@
+from typing import Literal
 from pytest_bdd import scenarios, given, when, then, parsers
 from datetime import datetime
 
@@ -41,14 +42,20 @@ def extend_books(app: App):
     app.extend_books()
 
 
-@then(parsers.parse('"{title}" is still checked out and is due later than {due_date_str}'))
-def book_due_later(app: App, title: str, due_date_str: str):
+@then(parsers.parse('"{title}" is still checked out and is due {comparison} date {due_date_str}'))
+def book_due_later(app: App, title: str, due_date_str: str, comparison: Literal['later than', 'on']):
     due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
     books = app._books_repo.get_all_checked_out_books()
     for book in books:
         if book.title == title:
-            assert book.due_on > due_date
-            break
+            if comparison == 'later than':
+                assert book.due_on > due_date
+                break
+            elif comparison == 'on':
+                assert book.due_on == due_date
+                break
+            else:
+                raise ValueError(f'comparison "{comparison}" not handled')
     else:
         raise ValueError(f"Book not found: '{title}'")
 
@@ -61,3 +68,4 @@ def extension_email_sent(app: App):
 @then("a warning e-mail is sent out")
 def extension_email_sent(app: App):
     app._notification_service.send_warning_email.assert_called_once()
+

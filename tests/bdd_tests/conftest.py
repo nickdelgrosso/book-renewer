@@ -22,12 +22,18 @@ class InMemoryBooksRepo(BooksRepo):
         return list(self.__books.values())
          
     def request_extension(self, book_id: str) -> tuple[bool, CheckedOutBook]:
-         book = self.__books[book_id]
-         new_due_date = book.due_on + timedelta(days=14)
-         updated_book = book.update(due_on=new_due_date)
-         assert updated_book.id == book.id
-         self.__books[updated_book.id] = updated_book
-         return True, updated_book
+        book = self.__books[book_id]
+        if book.extensions_remaining > 0:
+            updated_book = book.update(
+                due_on = book.due_on + timedelta(days=14), 
+                extensions_remaining = book.extensions_remaining - 1
+            )
+            assert updated_book.id == book.id
+            self.__books[updated_book.id] = updated_book
+            return True, updated_book
+        else:
+            return False, book
+            
          
 
 class TestClock(Clock):
