@@ -39,20 +39,27 @@ class Clock(ABC):
 
 
 @dataclass
-class BookExtension:
+class BookExtensionNotification:
     book_title: str
     old_due_date: datetime
     new_due_date: datetime
     extensions_remaining: int
 
 
+@dataclass
+class BookExtensionProblemNotification:
+    book_title: str
+    due_date: datetime
+    extensions_remaining: int
+
+
 class NotificationService(ABC):
 
     @abstractmethod
-    def send_extension_email(self, extensions: list[BookExtension]): ...
+    def send_extension_email(self, extensions: list[BookExtensionNotification]): ...
 
     @abstractmethod
-    def send_warning_email(self, extensions: list[CheckedOutBook]): ...
+    def send_warning_email(self, extensions: list[BookExtensionProblemNotification]): ...
 
 
 @dataclass
@@ -72,21 +79,31 @@ class ExtendBooksUseCase:
     def __call__(self, extension_days_thresh: int, extensions_remaining_thresh: int):
         current_date = self.clock.get_current()
         books = self.books_repo.get_all_checked_out_books()
-        completed_book_extensions: list[BookExtension] = []
-        almost_unextendable_books: list[CheckedOutBook] = []
-        unextendable_books: list[CheckedOutBook] = []
+        completed_book_extensions: list[BookExtensionNotification] = []
+        almost_unextendable_books: list[BookExtensionProblemNotification] = []
+        unextendable_books: list[BookExtensionProblemNotification] = []
         for book in books:
             days_remaining = (book.due_on - current_date).days
             if book.extensions_remaining <= extensions_remaining_thresh:
-                almost_unextendable_books.append(book)
+                problem_book = BookExtensionProblemNotification(
+                    book_title=book.title,
+                    due_date=book.due_on,
+                    extensions_remaining=book.extensions_remaining
+                )
+                almost_unextendable_books.append(problem_book)
                 
 
             if days_remaining <= extension_days_thresh:
                 ok, book_updated = self.books_repo.request_extension(book.id)
                 if not ok:
-                    unextendable_books.append(book)
+                    problem_book = BookExtensionProblemNotification(
+                        book_title=book.title,
+                        due_date=book.due_on,
+                        extensions_remaining=book.extensions_remaining
+                    )
+                    unextendable_books.append(problem_book)
                 else:
-                    extension = BookExtension(
+                    extension = BookExtensionNotification(
                         book_title=book.title,
                         old_due_date=book.due_on,
                         new_due_date=book_updated.due_on,
