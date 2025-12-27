@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import Field, dataclass, field, replace
+from dataclasses import dataclass, field, replace
 from datetime import datetime
-from typing import Any, NamedTuple
 from uuid import uuid4
 
 @dataclass(frozen=True)
@@ -98,7 +97,7 @@ class ExtendBooksUseCase:
                 if not ok:
                     problem_book = BookExtensionProblemNotification(
                         book_title=book.title,
-                        due_date=book.due_on,
+                        due_date=book.due_on,             
                         extensions_remaining=book.extensions_remaining
                     )
                     unextendable_books.append(problem_book)
