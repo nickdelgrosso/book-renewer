@@ -66,6 +66,6 @@ def extension_email_sent(app: App):
 
 
 @then("a warning e-mail is sent out")
-def extension_email_sent(app: App):
+def warning_email_sent(app: App):
     app._notification_service.send_warning_email.assert_called_once()
 
