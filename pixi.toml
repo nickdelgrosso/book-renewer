@@ -11,6 +11,7 @@ install-browser = 'playwright install chromium && playwright install-deps'
 
 [dependencies]
 python = "3.13.*"
+pip = ">=25.3,<26"
 
 [pypi-dependencies]
 pytest = ">=9.0.2, <10"
@@ -18,3 +19,4 @@ pytest-bdd = ">=8.1.0, <9"
 requests = ">=2.32.5, <3"
 playwright = ">=1.57.0, <2"
 nest-asyncio = ">=1.6.0, <2"
+python-dotenv = ">=1.2.1, <2"
